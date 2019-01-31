@@ -1,6 +1,6 @@
-cmake_minimum_required(VERSION 2.8.2)
+cmake_minimum_required(VERSION 3.9)
 
-project(googletest-download NONE)
+project(vtk-download NONE)
 
 include(ExternalProject)
 
@@ -14,8 +14,8 @@ endif()
 ExternalProject_Add(VTK
 	DEPENDS ${VTK_DEPENDENCIES}
 	GIT_REPOSITORY https://vtk.org/VTK.git
-	GIT_TAG master
-	SOURCE_DIR ${CMAKE_BINARY_DIR}/vkt-src
+	GIT_TAG v8.1.2
+	SOURCE_DIR ${CMAKE_BINARY_DIR}/vtk-src
 	BINARY_DIR ${CMAKE_BINARY_DIR}/vtk-build
 	UPDATE_COMMAND ""
 	PATCH_COMMAND ""
@@ -24,18 +24,9 @@ ExternalProject_Add(VTK
 	INSTALL_COMMAND		""
 	TEST_COMMAND		""
 	CMAKE_GENERATOR ${EP_CMAKE_GENERATOR}
-	CMAKE_ARGS
-		${ep_common_args}
-		${_vtkOptions}
-		-DBUILD_EXAMPLES:BOOL=OFF
-		-DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS}
-		-DBUILD_TESTING:BOOL=OFF
-		-DCMAKE_BUILD_TYPE:STRING=${BUILD_TYPE}
-		-DVTK_BUILD_ALL_MODULES:BOOL=OFF
-		-DVTK_USE_SYSTEM_HDF5:BOOL=OFF
-		-DCMAKE_INSTALL_PREFIX:PATH=${INSTALL_DEPENDENCIES_DIR}
 #	UPDATE_DISCONNECTED	TRUE
 	GIT_PROGRESS		TRUE
 )
 
-set( VTK_DIR ${INSTALL_DEPENDENCIES_DIR}/lib/cmake/vtk-6.1/ )
+set(VTK_DIR ${CMAKE_BINARY_DIR}/vtk-build)
+# set( VTK_DIR ${INSTALL_DEPENDENCIES_DIR}/lib/cmake/vtk-8.9/ )
