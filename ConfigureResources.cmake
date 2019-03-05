@@ -1,26 +1,6 @@
 include(array2d)
 
-#function(setup_resources)
-#	set(RESOURCE_DIR "${CMAKE_BINARY_DIR}/resources")
-#	file(MAKE_DIRECTORY ${RESOURCE_DIR})
-#	
-#	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/GLSL/vertex.glsl ${RESOURCE_DIR}/vertex.glsl COPYONLY)
-#	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/GLSL/fragment.glsl ${RESOURCE_DIR}/fragment.glsl COPYONLY)
-#	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/wall.jpg ${RESOURCE_DIR}/wall.jpg COPYONLY)
-#	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/dvd.png ${RESOURCE_DIR}/dvd.png COPYONLY)
-#		
-#	
-#	add_custom_command(
-#		OUTPUT Resources.hpp
-#		COMMAND 
-#			python3 "${PROJECT_SOURCE_DIR}/scripts/generateResourcesFile.py" "Resources.hpp"
-#		DEPENDS
-#			"${PROJECT_SOURCE_DIR}/scripts/generateResourcesFile.py"
-#		COMMENT
-#			"Generating ${CMAKE_BINARY_DIR}/resources/Resources.hpp"	
-#	)
-#
-#endfunction()
+
 function(createResourcesTarget RESOURCE_DIR)
 	add_library(Resources INTERFACE)
 	target_sources(Resources
