@@ -1,9 +1,9 @@
 include(array2d)
 
 
-function(createResourcesTarget RESOURCE_DIR)
-	add_library(Resources INTERFACE)
-	target_sources(Resources
+function(createResourcesTarget DEST_TARGET RESOURCE_DIR)
+	add_library(${DEST_TARGET}_Resources INTERFACE)
+	target_sources(${DEST_TARGET}_Resources
 		INTERFACE
 			"${RESOURCE_DIR}/Resources.hpp"
 	)
@@ -18,9 +18,9 @@ function(target_resources DEST_TARGET TOP_DIR)
 		get_filename_component(basename "${Filename}" NAME)
 		file(MAKE_DIRECTORY "${RESOURCE_DIR}")
 		configure_file("${Filename}" "${RESOURCE_DIR}/${basename}" COPYONLY)
-		if(TARGET Resources)
+		if(TARGET ${DEST_TARGET}_Resources)
 		else()
-			createResourcesTarget("${RESOURCE_DIR}")
+			createResourcesTarget("${DEST_TARGET}" "${RESOURCE_DIR}")
 		endif()
 		add_custom_target(resources_${DEST_TARGET}_${basename}_stamp DEPENDS "${RESOURCE_DIR}/${basename}")
 		if(TARGET resources_${DEST_TARGET})
@@ -52,5 +52,5 @@ function(target_resources DEST_TARGET TOP_DIR)
 		
 		array2d_advance()
 	endwhile()
-	add_dependencies(Resources resources_${DEST_TARGET})
+	add_dependencies(${DEST_TARGET}_Resources resources_${DEST_TARGET})
 endfunction()
