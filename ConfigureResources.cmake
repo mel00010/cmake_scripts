@@ -9,7 +9,7 @@ function(createResourcesTarget DEST_TARGET RESOURCE_DIR)
 	)
 endfunction()
 
-function(target_resources DEST_TARGET TOP_DIR)
+function(target_resources DEST_TARGET TOP_DIR T_NAMESPACE)
 	set(RESOURCE_DIR "${TOP_DIR}/resources")
 	array2d_begin_loop(advanced "${ARGN}" 3 "Filename;ID;Type")
 	while(advanced)
@@ -22,6 +22,7 @@ function(target_resources DEST_TARGET TOP_DIR)
 		else()
 			createResourcesTarget("${DEST_TARGET}" "${RESOURCE_DIR}")
 		endif()
+		
 		add_custom_target(resources_${DEST_TARGET}_${basename}_stamp DEPENDS "${RESOURCE_DIR}/${basename}")
 		if(TARGET resources_${DEST_TARGET})
 			file(APPEND "${RESOURCE_DIR}/resource_list.txt" "${ID} ${Type} resources/${basename}\n")
@@ -40,6 +41,7 @@ function(target_resources DEST_TARGET TOP_DIR)
 					python3 "${PROJECT_SOURCE_DIR}/cmake/generateResourcesFile.py"
 					"${RESOURCE_DIR}/resource_list.txt"
 					"${RESOURCE_DIR}/Resources.hpp"
+					"${T_NAMESPACE}"
 				DEPENDS
 					"${PROJECT_SOURCE_DIR}/cmake/generateResourcesFile.py"
 					"${RESOURCE_DIR}/resource_list.txt"
