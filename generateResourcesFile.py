@@ -17,7 +17,7 @@ def main():
             out_file.write("#define RESOURCES_HPP_\n\n")
             
             # Add header includes=
-            out_file.write("#include <ResourceDefs.hpp>\n")
+            out_file.write("#include <Util/ResourceDefs.hpp>\n")
             out_file.write("\n")
             out_file.write("#include <cstddef>\n")
             out_file.write("#include <utility>\n\n")
@@ -27,14 +27,10 @@ def main():
             
             # Declare ResourceID enum
             out_file.write("enum class ResourceID : size_t {\n")
-            first_in_list = True
-            for i in args[0::3]:
-                if not first_in_list:
-                    out_file.write(",\n")
-                out_file.write("\t\t" + i)
-                if first_in_list:
-                    out_file.write(" = 0")
-                first_in_list = False
+            num = 0
+            for i in args[0::4]:
+                out_file.write("\t\t" + i + " = " + str(num) + ",\n")
+                num = num + 1
             
             out_file.write("\n};\n\n")
             
@@ -45,6 +41,7 @@ def main():
                 ID = 1
                 TYPE = 2
                 PATH = 3
+                MAIN_FILE = 4
             
             # Add array contents
             # ID first, Type second, Path third
@@ -54,16 +51,20 @@ def main():
                 if state == State.ID:
                     if not first_in_list:
                         out_file.write(",\n")
+                    first_in_list = False
                     out_file.write("\t\t{ResourceID::" + i + ", ")
                     state = State.TYPE
                     continue
                 elif state == State.TYPE:
-                    out_file.write("ResourceType::" + i + ", \"")
+                    out_file.write("ResourceType::" + i + ", ")
                     state = State.PATH
                     continue
                 elif state == State.PATH:
-                    out_file.write(i + "\"}")
-                    first_in_list = False
+                    out_file.write("\"" + i + "\", ")
+                    state = State.MAIN_FILE
+                    continue
+                elif state == State.MAIN_FILE:
+                    out_file.write("\"" + i + "\"}")
                     state = State.ID
                     continue
             out_file.write("\n};\n\n")
