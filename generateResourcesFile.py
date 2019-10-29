@@ -5,6 +5,11 @@ import sys
 import itertools
 from enum import Enum
 import shlex
+import re
+
+def convert(name):
+    s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
+    return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).upper()
 
 def main():
     if len(sys.argv) < 3:
@@ -13,8 +18,8 @@ def main():
         args = shlex.split(resources_file.read())
         with open(sys.argv[2], 'w') as out_file:
             # Add include guard
-            out_file.write("#ifndef RESOURCES_HPP_\n")
-            out_file.write("#define RESOURCES_HPP_\n\n")
+            out_file.write("#ifndef " + convert(sys.argv[3]) + "_RESOURCES_HPP_\n")
+            out_file.write("#define " + convert(sys.argv[3]) + "_RESOURCES_HPP_\n\n")
             
             # Add header includes=
             out_file.write("#include <Util/ResourceDefs.hpp>\n")
@@ -35,7 +40,7 @@ def main():
             out_file.write("\n};\n\n")
             
             # Add Resource<ResourceID> array declaration
-            out_file.write("static constexpr Resource<ResourceID> Resources[] = {\n")
+            out_file.write("constexpr Resource<ResourceID> Resources[] = {\n")
             
             class State(Enum):
                 ID = 1
@@ -75,6 +80,6 @@ def main():
             out_file.write("}\n\n")
             out_file.write("} /* namespace " + sys.argv[3] + " */\n\n\n")
             
-            out_file.write("#endif /* RESOURCES_HPP_ */\n")
+            out_file.write("#endif /* " + convert(sys.argv[3]) + "_RESOURCES_HPP_ */\n")
 if __name__ == '__main__':
     main()
