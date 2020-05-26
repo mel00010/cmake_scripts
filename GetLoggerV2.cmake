@@ -2,7 +2,7 @@ include(FetchContent)
 set(FETCHCONTENT_QUIET OFF)
 
 FetchContent_Declare(LoggerV2
-  GIT_REPOSITORY  git@github.com:mel00010/LoggerV2.git
+  GIT_REPOSITORY  https://github.com/mel00010/LoggerV2.git
   GIT_TAG         master
 )
 
