@@ -5,15 +5,15 @@
 # are permitted provided that the following conditions are met:
 #
 # 1. Redistributions of source code must retain the above copyright notice, this
-#	list of conditions and the following disclaimer.
+#  list of conditions and the following disclaimer.
 #
 # 2. Redistributions in binary form must reproduce the above copyright notice,
-#	this list of conditions and the following disclaimer in the documentation
-#	and/or other materials provided with the distribution.
+#  this list of conditions and the following disclaimer in the documentation
+#  and/or other materials provided with the distribution.
 #
 # 3. Neither the name of the copyright holder nor the names of its contributors
-#	may be used to endorse or promote products derived from this software without
-#	specific prior written permission.
+#  may be used to endorse or promote products derived from this software without
+#  specific prior written permission.
 #
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 # ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
@@ -47,23 +47,23 @@
 # 1. Copy this file into your cmake modules path.
 #
 # 2. Add the following line to your CMakeLists.txt:
-#	  include(CodeCoverage)
+#    include(CodeCoverage)
 #
 # 3. Append necessary compiler flags:
-#	  APPEND_COVERAGE_COMPILER_FLAGS()
+#    APPEND_COVERAGE_COMPILER_FLAGS()
 #
 # 4. If you need to exclude additional directories from the report, specify them
-#	using the COVERAGE_EXCLUDES variable before calling SETUP_TARGET_FOR_COVERAGE.
-#	Example:
-#	  set(COVERAGE_EXCLUDES 'dir1/*' 'dir2/*')
+#  using the COVERAGE_EXCLUDES variable before calling SETUP_TARGET_FOR_COVERAGE.
+#  Example:
+#    set(COVERAGE_EXCLUDES 'dir1/*' 'dir2/*')
 #
 # 5. Use the functions described below to create a custom make target which
-#	runs your test executable and produces a code coverage report.
+#  runs your test executable and produces a code coverage report.
 #
 # 6. Build a Debug build:
-#	  cmake -DCMAKE_BUILD_TYPE=Debug ..
-#	  make
-#	  make my_coverage_target
+#    cmake -DCMAKE_BUILD_TYPE=Debug ..
+#    make
+#    make my_coverage_target
 #
 
 include(CMakeParseArguments)
@@ -76,25 +76,25 @@ find_program( GCOVR_PATH gcovr PATHS ${CMAKE_SOURCE_DIR}/scripts/test)
 find_program( SIMPLE_PYTHON_EXECUTABLE python )
 
 if(NOT GCOV_PATH)
-	message(FATAL_ERROR "gcov not found! Aborting...")
+  message(FATAL_ERROR "gcov not found! Aborting...")
 endif() # NOT GCOV_PATH
 
 if("${CMAKE_CXX_COMPILER_ID}" MATCHES "(Apple)?[Cc]lang")
-	if("${CMAKE_CXX_COMPILER_VERSION}" VERSION_LESS 3)
-		message(FATAL_ERROR "Clang version must be 3.0.0 or greater! Aborting...")
-	endif()
+  if("${CMAKE_CXX_COMPILER_VERSION}" VERSION_LESS 3)
+    message(FATAL_ERROR "Clang version must be 3.0.0 or greater! Aborting...")
+  endif()
 elseif(NOT CMAKE_COMPILER_IS_GNUCXX)
-	message(FATAL_ERROR "Compiler is not GNU gcc! Aborting...")
+  message(FATAL_ERROR "Compiler is not GNU gcc! Aborting...")
 endif()
 
 if(NOT CMAKE_BUILD_TYPE STREQUAL "Coverage")
-	message(WARNING "Code coverage results with an optimised (non-Coverage) build may be misleading")
+  message(WARNING "Code coverage results with an optimised (non-Coverage) build may be misleading")
 endif() # NOT CMAKE_BUILD_TYPE STREQUAL "Debug"
 
 if(CMAKE_COMPILER_IS_GNUCXX)
-	link_libraries(gcov)
+  link_libraries(gcov)
 else()
-	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
 endif()
 
 # Defines a target for running and collection code coverage information
@@ -103,62 +103,62 @@ endif()
 # the coverage generation will not complete.
 #
 # SETUP_TARGET_FOR_COVERAGE(
-#	 NAME testrunner_coverage					# New target name
-#	 EXECUTABLE testrunner -j ${PROCESSOR_COUNT} # Executable in PROJECT_BINARY_DIR
-#	 DEPENDENCIES testrunner					 # Dependencies to build first
+#   NAME testrunner_coverage          # New target name
+#   EXECUTABLE testrunner -j ${PROCESSOR_COUNT} # Executable in PROJECT_BINARY_DIR
+#   DEPENDENCIES testrunner           # Dependencies to build first
 # )
 function(SETUP_TARGET_FOR_COVERAGE)
 
-	set(options NONE)
-	set(oneValueArgs NAME)
-	set(multiValueArgs EXECUTABLE EXECUTABLE_ARGS DEPENDENCIES)
-	cmake_parse_arguments(Coverage "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+  set(options NONE)
+  set(oneValueArgs NAME)
+  set(multiValueArgs EXECUTABLE EXECUTABLE_ARGS DEPENDENCIES)
+  cmake_parse_arguments(Coverage "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
-	if(NOT LCOV_PATH)
-		message(FATAL_ERROR "lcov not found! Aborting...")
-	endif() # NOT LCOV_PATH
+  if(NOT LCOV_PATH)
+    message(FATAL_ERROR "lcov not found! Aborting...")
+  endif() # NOT LCOV_PATH
 
-	if(NOT GENHTML_PATH)
-		message(FATAL_ERROR "genhtml not found! Aborting...")
-	endif() # NOT GENHTML_PATH
+  if(NOT GENHTML_PATH)
+    message(FATAL_ERROR "genhtml not found! Aborting...")
+  endif() # NOT GENHTML_PATH
 
-	add_custom_target(${Coverage_NAME}_LCOV_RESET
-		COMMAND ${LCOV_PATH} --directory . --zerocounters --rc lcov_branch_coverage=1 > /dev/null 2> /dev/null
-		WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
-		DEPENDS ${Coverage_DEPENDENCIES}
-		COMMENT "Resetting code coverage counters to zero"
-	)
-	add_custom_target(${Coverage_NAME}_TEST_RUN
-		COMMAND ${Coverage_EXECUTABLE} > /dev/null
-		WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
-		DEPENDS ${Coverage_NAME}_LCOV_RESET
-		COMMENT "Running ${Coverage_EXECUTABLE} to generate coverage data"
-	)
-	add_custom_target(${Coverage_NAME}_CAPTURE_LCOV
-		COMMAND ${LCOV_PATH} --directory . --capture --output-file ${Coverage_NAME}.info --rc lcov_branch_coverage=1 > /dev/null
-		WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
-		DEPENDS ${Coverage_NAME}_TEST_RUN
-		COMMENT "Running lcov to generate ${Coverage_NAME}.info"
-	)
-	add_custom_target(${Coverage_NAME}_CLEAN_LCOV
-		COMMAND ${LCOV_PATH} --remove ${Coverage_NAME}.info ${COVERAGE_EXCLUDES} --output-file ${Coverage_NAME}.info.cleaned --rc lcov_branch_coverage=1 > /dev/null
-		WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
-		DEPENDS ${Coverage_NAME}_CAPTURE_LCOV
-		COMMENT "Running lcov to clean ${Coverage_NAME}.info and produce ${Coverage_NAME}.info.cleaned"
-	)
-	add_custom_target(${Coverage_NAME}_GENHTML
-		COMMAND ${GENHTML_PATH} -o ${Coverage_NAME} ${Coverage_NAME}.info.cleaned --branch-coverage > /dev/null
-		WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
-		DEPENDS ${Coverage_NAME}_CLEAN_LCOV
-		COMMENT "Running genhtml on ${Coverage_NAME}.info.cleaned to produce html report"
-	)
-		
-	add_custom_target(${Coverage_NAME}
-		COMMAND ${CMAKE_COMMAND} -E remove ${Coverage_NAME}.info ${Coverage_NAME}.info.cleaned
-		WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
-		DEPENDS ${Coverage_NAME}_GENHTML
-		COMMENT "Removing ${Coverage_NAME}.info and ${Coverage_NAME}.info.cleaned"
-	)
+  add_custom_target(${Coverage_NAME}_LCOV_RESET
+    COMMAND ${LCOV_PATH} --directory . --zerocounters --rc lcov_branch_coverage=1 > /dev/null 2> /dev/null
+    WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+    DEPENDS ${Coverage_DEPENDENCIES}
+    COMMENT "Resetting code coverage counters to zero"
+  )
+  add_custom_target(${Coverage_NAME}_TEST_RUN
+    COMMAND ${Coverage_EXECUTABLE} > /dev/null
+    WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+    DEPENDS ${Coverage_NAME}_LCOV_RESET
+    COMMENT "Running ${Coverage_EXECUTABLE} to generate coverage data"
+  )
+  add_custom_target(${Coverage_NAME}_CAPTURE_LCOV
+    COMMAND ${LCOV_PATH} --directory . --capture --output-file ${Coverage_NAME}.info --rc lcov_branch_coverage=1 > /dev/null
+    WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+    DEPENDS ${Coverage_NAME}_TEST_RUN
+    COMMENT "Running lcov to generate ${Coverage_NAME}.info"
+  )
+  add_custom_target(${Coverage_NAME}_CLEAN_LCOV
+    COMMAND ${LCOV_PATH} --remove ${Coverage_NAME}.info ${COVERAGE_EXCLUDES} --output-file ${Coverage_NAME}.info.cleaned --rc lcov_branch_coverage=1 > /dev/null
+    WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+    DEPENDS ${Coverage_NAME}_CAPTURE_LCOV
+    COMMENT "Running lcov to clean ${Coverage_NAME}.info and produce ${Coverage_NAME}.info.cleaned"
+  )
+  add_custom_target(${Coverage_NAME}_GENHTML
+    COMMAND ${GENHTML_PATH} -o ${Coverage_NAME} ${Coverage_NAME}.info.cleaned --branch-coverage > /dev/null
+    WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+    DEPENDS ${Coverage_NAME}_CLEAN_LCOV
+    COMMENT "Running genhtml on ${Coverage_NAME}.info.cleaned to produce html report"
+  )
+
+  add_custom_target(${Coverage_NAME}
+    COMMAND ${CMAKE_COMMAND} -E remove ${Coverage_NAME}.info ${Coverage_NAME}.info.cleaned
+    WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+    DEPENDS ${Coverage_NAME}_GENHTML
+    COMMENT "Removing ${Coverage_NAME}.info and ${Coverage_NAME}.info.cleaned"
+  )
 endfunction() # SETUP_TARGET_FOR_COVERAGE
 
 # Defines a target for running and collection code coverage information
@@ -167,54 +167,54 @@ endfunction() # SETUP_TARGET_FOR_COVERAGE
 # the coverage generation will not complete.
 #
 # SETUP_TARGET_FOR_COVERAGE_COBERTURA(
-#	 NAME ctest_coverage					# New target name
-#	 EXECUTABLE ctest -j ${PROCESSOR_COUNT} # Executable in PROJECT_BINARY_DIR
-#	 DEPENDENCIES executable_target		 # Dependencies to build first
+#   NAME ctest_coverage          # New target name
+#   EXECUTABLE ctest -j ${PROCESSOR_COUNT} # Executable in PROJECT_BINARY_DIR
+#   DEPENDENCIES executable_target     # Dependencies to build first
 # )
 function(SETUP_TARGET_FOR_COVERAGE_COBERTURA)
 
-	set(options NONE)
-	set(oneValueArgs NAME)
-	set(multiValueArgs EXECUTABLE EXECUTABLE_ARGS DEPENDENCIES)
-	cmake_parse_arguments(Coverage "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+  set(options NONE)
+  set(oneValueArgs NAME)
+  set(multiValueArgs EXECUTABLE EXECUTABLE_ARGS DEPENDENCIES)
+  cmake_parse_arguments(Coverage "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
-	if(NOT SIMPLE_PYTHON_EXECUTABLE)
-		message(FATAL_ERROR "python not found! Aborting...")
-	endif() # NOT SIMPLE_PYTHON_EXECUTABLE
+  if(NOT SIMPLE_PYTHON_EXECUTABLE)
+    message(FATAL_ERROR "python not found! Aborting...")
+  endif() # NOT SIMPLE_PYTHON_EXECUTABLE
 
-	if(NOT GCOVR_PATH)
-		message(FATAL_ERROR "gcovr not found! Aborting...")
-	endif() # NOT GCOVR_PATH
+  if(NOT GCOVR_PATH)
+    message(FATAL_ERROR "gcovr not found! Aborting...")
+  endif() # NOT GCOVR_PATH
 
-	# Combine excludes to several -e arguments
-	set(COBERTURA_EXCLUDES "")
-	foreach(EXCLUDE ${COVERAGE_EXCLUDES})
-		set(COBERTURA_EXCLUDES "-e ${EXCLUDE} ${COBERTURA_EXCLUDES}")
-	endforeach()
+  # Combine excludes to several -e arguments
+  set(COBERTURA_EXCLUDES "")
+  foreach(EXCLUDE ${COVERAGE_EXCLUDES})
+    set(COBERTURA_EXCLUDES "-e ${EXCLUDE} ${COBERTURA_EXCLUDES}")
+  endforeach()
 
-	add_custom_target(${Coverage_NAME}
+  add_custom_target(${Coverage_NAME}
 
-		# Run tests
-		${Coverage_EXECUTABLE}
+    # Run tests
+    ${Coverage_EXECUTABLE}
 
-		# Running gcovr
-		COMMAND ${GCOVR_PATH} -x -r ${CMAKE_SOURCE_DIR} ${COBERTURA_EXCLUDES}
-			-o ${Coverage_NAME}.xml
-		WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
-		DEPENDS ${Coverage_DEPENDENCIES}
-		COMMENT "Running gcovr to produce Cobertura code coverage report."
-	)
+    # Running gcovr
+    COMMAND ${GCOVR_PATH} -x -r ${CMAKE_SOURCE_DIR} ${COBERTURA_EXCLUDES}
+      -o ${Coverage_NAME}.xml
+    WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+    DEPENDS ${Coverage_DEPENDENCIES}
+    COMMENT "Running gcovr to produce Cobertura code coverage report."
+  )
 
-	# Show info where to find the report
-	add_custom_command(TARGET ${Coverage_NAME} POST_BUILD
-		COMMAND ;
-		COMMENT "Cobertura code coverage report saved in ${Coverage_NAME}.xml."
-	)
+  # Show info where to find the report
+  add_custom_command(TARGET ${Coverage_NAME} POST_BUILD
+    COMMAND ;
+    COMMENT "Cobertura code coverage report saved in ${Coverage_NAME}.xml."
+  )
 
 endfunction() # SETUP_TARGET_FOR_COVERAGE_COBERTURA
 
 function(APPEND_COVERAGE_COMPILER_FLAGS)
-	set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} ${COVERAGE_COMPILER_FLAGS}" PARENT_SCOPE)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COVERAGE_COMPILER_FLAGS}" PARENT_SCOPE)
-	message(STATUS "Appending code coverage compiler flags: ${COVERAGE_COMPILER_FLAGS}")
+  set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} ${COVERAGE_COMPILER_FLAGS}" PARENT_SCOPE)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COVERAGE_COMPILER_FLAGS}" PARENT_SCOPE)
+  message(STATUS "Appending code coverage compiler flags: ${COVERAGE_COMPILER_FLAGS}")
 endfunction() # APPEND_COVERAGE_COMPILER_FLAGS

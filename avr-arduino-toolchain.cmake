@@ -129,14 +129,14 @@ add_compile_options(-fno-threadsafe-statics)
 
 
 # we need a little function to add multiple targets
-function(add_executable_avr NAME)       
+function(add_executable_avr NAME)
     if (DEFINED MCU_REQUIRED AND (NOT (MCU STREQUAL "${MCU_REQUIRED}")))
         message(STATUS "Ignoring target ${NAME} (required MCU '${MCU_REQUIRED}' != '${MCU}')")
     else ()
         add_executable(${NAME} ${ARGN})
         set_target_properties(${NAME} PROPERTIES OUTPUT_NAME "${NAME}.elf")
         set_target_properties(${NAME} PROPERTIES LINK_FLAGS " -Wall -Wextra -Os -g -flto -fuse-linker-plugin -Wl,--gc-sections,--relax -mmcu=atmega2560" )
-        
+
         set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${NAME}.hex;${NAME}.eep;${NAME}.lst")
 
         # generate the .hex file
@@ -164,7 +164,7 @@ function(add_executable_avr NAME)
                 DEPENDS ${NAME}.hex
                 USES_TERMINAL)
         elseif (PROGRAMMER STREQUAL "atmelice_isp")
-        	add_custom_target(
+          add_custom_target(
                 ${NAME}-flash
                 COMMAND avarice -4 -j usb --erase --program --file ${NAME}.hex
                 DEPENDS ${NAME}.hex
@@ -179,17 +179,17 @@ function(add_executable_avr NAME)
         endif ()
 
         # flash the produces binary
-       
+
         add_custom_target(
                 ${NAME}-monitor
                 COMMAND ${MONITOR} ${MONITOR_ARGS}
                 USES_TERMINAL)
-                
+
         add_custom_target(
                 ${NAME}-simulate
                 COMMAND ${SIMAVR} ${SIMAVR_ARGS} ${NAME}.elf
                 USES_TERMINAL
-                DEPENDS ${NAME})        
+                DEPENDS ${NAME})
     endif ()
 endfunction(add_executable_avr)
 
@@ -243,7 +243,7 @@ function(setup_arduino_core)
         set(ARDUINO_CORE_SRCS ${CORE_SOURCES} CACHE STRING "Arduino core library sources")
 
         # setup the main arduino core target
-#	    add_library(arduino-core ${ARDUINO_CORE_SRCS})
+#      add_library(arduino-core ${ARDUINO_CORE_SRCS})
 #        target_include_directories(arduino-core PUBLIC ${ARDUINO_CORES_PATH})
 #        target_include_directories(arduino-core PUBLIC ${ARDUINO_VARIANTS_PATH})
 

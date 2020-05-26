@@ -30,7 +30,7 @@ endfunction()
 # Add a command to generate firmare in a provided format
 function(generate_object target suffix type)
     add_custom_target(${target}${suffix} ALL
-   		DEPENDS ${target}
+       DEPENDS ${target}
         COMMAND ${CMAKE_OBJCOPY} -O${type}
         "${CMAKE_CURRENT_BINARY_DIR}/${target}${CMAKE_EXECUTABLE_SUFFIX}" "${CMAKE_CURRENT_BINARY_DIR}/${target}${suffix}"
     )
@@ -38,7 +38,7 @@ endfunction()
 # Add a command to generate firmare in a provided format
 function(generate_object_s target suffix type)
     add_custom_target(${target}${suffix} ALL
-    	DEPENDS ${target}
+      DEPENDS ${target}
         COMMAND ${CMAKE_OBJCOPY} -O${type} -S
         "${CMAKE_CURRENT_BINARY_DIR}/${target}${CMAKE_EXECUTABLE_SUFFIX}" "${CMAKE_CURRENT_BINARY_DIR}/${target}${suffix}"
     )

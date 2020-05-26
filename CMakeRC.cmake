@@ -1,5 +1,7 @@
 # This block is executed when generating an intermediate resource file, not when
 # running in CMake configure mode
+cmake_policy(SET CMP0069 NEW)
+
 if(_CMRC_GENERATE_MODE)
     # Read in the digits
     file(READ "${INPUT_FILE}" bytes HEX)
@@ -34,7 +36,6 @@ endif()
 
 set(_version 2.0.0)
 
-cmake_minimum_required(VERSION 3.3)
 include(CMakeParseArguments)
 
 if(COMMAND cmrc_add_resource_library)

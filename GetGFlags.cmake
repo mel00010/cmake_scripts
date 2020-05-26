@@ -9,5 +9,6 @@ FetchContent_Declare(gflags
 FetchContent_GetProperties(gflags)
 if(NOT gflags_POPULATED)
 	FetchContent_Populate(gflags)
+	cmake_policy(SET CMP0069 NEW)
 	add_subdirectory(${gflags_SOURCE_DIR} ${gflags_BINARY_DIR})
 endif()
