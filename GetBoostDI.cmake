@@ -7,7 +7,7 @@ FetchContent_Declare(BoostDI
 )
 
 FetchContent_GetProperties(BoostDI)
-if(NOT BoostDI_POPULATED)
+if(NOT boostdi_POPULATED)
   FetchContent_Populate(BoostDI)
   cmake_policy(SET CMP0069 NEW)
   add_subdirectory("${boostdi_SOURCE_DIR}" "${boostdi_BINARY_DIR}")

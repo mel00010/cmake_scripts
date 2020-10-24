@@ -7,7 +7,7 @@ FetchContent_Declare(LoggerV2
 )
 
 FetchContent_GetProperties(LoggerV2)
-if(NOT LoggerV2_POPULATED)
+if(NOT loggerv2_POPULATED)
   FetchContent_Populate(LoggerV2)
   cmake_policy(SET CMP0069 NEW)
   add_subdirectory("${loggerv2_SOURCE_DIR}" "${loggerv2_BINARY_DIR}")
